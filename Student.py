@@ -2,7 +2,7 @@ from tkinter import *
 from firebase import firebase
 from simplecrypt import encrypt, decrypt
 
-firebase = firebase.FirebaseApplication("https://pythonchat-b9184-default-rtdb.firebaseio.com", None)
+firebase = firebase.FirebaseApplication("https://pythonchat-b9184-default-rtdb.firebaseio.com/", None)
 
 login_window = Tk()
 login_window.geometry("400x400")
@@ -13,6 +13,7 @@ your_code = ''
 your_friends_code = ''
 message_text = ''
 message_entry = ''
+last_value = ''
 
 def sendData():
     global username
@@ -23,6 +24,32 @@ def sendData():
     hex_string = ciphercode.hex()
     put_date = firebase.put("/", your_code, hex_string)
     print(put_date)
+    getData()
+
+def getData():
+    global message_text
+    global last_value
+    global your_code
+    global your_friends_code
+    get_your_data = firebase.get('/', your_code)
+    print(get_your_data)
+    byte_str = bytes.fromhex(get_your_data)
+    original = decrypt('AIM', byte_str)
+    print("Original data ",original)
+    final_message = original.decode("utf-8")
+    print(final_message)
+    message_text.insert(END, final_message+"\n")
+
+    get_friends_data = firebase.get('/', your_friends_code)
+    if(get_friends_data != None):
+        print("data : ",get_friends_data)
+        byte_str = bytes.fromhex(get_friends_data)
+        original = decrypt('AIM', byte_str)
+        final_message = original.decode("utf-8")
+        if (final_message not in last__value):
+            print(final_message)
+            message_text.insert(END, final_message+"\n")
+            last_value = final_message
 
     
 
